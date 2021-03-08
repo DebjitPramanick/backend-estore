@@ -17,6 +17,7 @@ router.post(
 
     if (userExists) {
       res.status(404);
+      console.log(userExists)
       throw new Error("User Already Exists");
     }
 

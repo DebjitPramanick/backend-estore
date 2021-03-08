@@ -6,6 +6,7 @@ const connectDB = require("./db");
 connectDB();
 
 const app = express();
+app.use(express.json())
 // GET Request to "/" route
 app.get("/", (req, res) => {
   res.send("API is running..");
