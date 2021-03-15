@@ -8,6 +8,15 @@ const router = express.Router();
 //@description     Register new user
 //@route           POST /api/users/
 //@access          Public
+
+router.get(
+  "/",
+  asyncHandler(async (req, res) => {
+    const user = await User.find({});
+    res.json(user);
+  })
+);
+
 router.post(
   "/register",
   asyncHandler(async (req, res) => {
@@ -17,7 +26,7 @@ router.post(
 
     if (userExists) {
       res.status(404);
-      console.log(userExists)
+      console.log(userExists);
       throw new Error("User Already Exists");
     }
 
@@ -48,18 +57,23 @@ router.post(
   asyncHandler(async (req, res) => {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    try {
+      const user = await User.findOne({ email });
+      const matched = await user.matchPassword(password);
 
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-        pic: user.pic,
-        token: generateToken(user._id),
-      });
-    } else {
+      if (user && matched) {
+
+        res.json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          isAdmin: user.isAdmin,
+          pic: user.pic,
+          token: generateToken(user._id),
+        });
+        
+      }
+    } catch (err) {
       res.status(401);
       throw new Error("Invalid Email or Password");
     }
